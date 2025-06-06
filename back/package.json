@@ -1,0 +1,42 @@
+{
+  "name": "pix-backend",
+  "version": "1.0.0",
+  "description": "Pix Key check simulation backend with Koa, Redis, GraphQL, and MongoDB",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "ts-node-dev -r tsconfig-paths/register  --transpile-only src/infrastructure/http/server.ts",
+    "build": "tsc && tsc-alias",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.12.2",
+    "@as-integrations/koa": "^1.1.1",
+    "@koa/cors": "^5.0.0",
+    "@typegoose/typegoose": "^12.16.0",
+    "class-validator": "^0.14.2",
+    "dotenv": "^16.5.0",
+    "graphql": "^15.8.0",
+    "ioredis": "^5.6.1",
+    "jest": "^29.7.0",
+    "jsonwebtoken": "^9.0.2",
+    "koa": "^3.0.0",
+    "koa-body": "^6.0.1",
+    "koa-bodyparser": "^4.4.1",
+    "koa-jwt": "^4.0.4",
+    "koa-router": "^13.0.1",
+    "mongoose": "^8.15.1",
+    "reflect-metadata": "^0.2.2",
+    "tsc-alias": "^1.8.16",
+    "type-graphql": "2.0.0-rc.2"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/koa": "^2.15.0",
+    "@types/koa-bodyparser": "^4.3.12",
+    "@types/koa-router": "^7.4.8",
+    "@types/node": "^22.15.29",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.3.3"
+  }
+}
