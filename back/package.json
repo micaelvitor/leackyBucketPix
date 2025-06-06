@@ -4,18 +4,21 @@
   "description": "Pix Key check simulation backend with Koa, Redis, GraphQL, and MongoDB",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "ts-node-dev -r tsconfig-paths/register  --transpile-only src/infrastructure/http/server.ts",
+    "dev": "ts-node-dev -r tsconfig-paths/register --transpile-only src/infrastructure/http/server.ts",
     "build": "tsc && tsc-alias",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "worker": "ts-node-dev -r tsconfig-paths/register src/infrastructure/queue/workers/user.worker.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.12.2",
     "@as-integrations/koa": "^1.1.1",
     "@koa/cors": "^5.0.0",
     "@typegoose/typegoose": "^12.16.0",
-    "class-validator": "^0.14.2",
+    "@types/uuid": "^10.0.0",
+    "bcrypt": "^6.0.0",
+    "bullmq": "^5.1.1",
     "dotenv": "^16.5.0",
-    "graphql": "^15.8.0",
+    "graphql": "^16.8.1",
     "ioredis": "^5.6.1",
     "jest": "^29.7.0",
     "jsonwebtoken": "^9.0.2",
@@ -27,13 +30,16 @@
     "mongoose": "^8.15.1",
     "reflect-metadata": "^0.2.2",
     "tsc-alias": "^1.8.16",
-    "type-graphql": "2.0.0-rc.2"
+    "type-graphql": "2.0.0-rc.2",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/koa": "^2.15.0",
     "@types/koa-bodyparser": "^4.3.12",
     "@types/koa-router": "^7.4.8",
+    "@types/koa__cors": "^5.0.0",
     "@types/node": "^22.15.29",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",

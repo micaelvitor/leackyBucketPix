@@ -1,48 +1,54 @@
 import 'reflect-metadata';
-import dotenv from 'dotenv';
 import Koa from 'koa';
-import { authMiddleware } from '@/application/shared/middlewares/auth.middleware';
+import bodyParser from 'koa-bodyparser';
 import Router from 'koa-router';
+import './config/env';
 import { ApolloServer } from '@apollo/server';
 import { koaMiddleware } from "@as-integrations/koa";
 import { buildSchema } from 'type-graphql';
-import { UserResolver } from '@/application/interfaces/http/graphql/resolvers/user/user.resolver';
-import { createLeakyBucketMiddleware } from '@/application/shared/middlewares/leackyBucket.middleware';
-
-dotenv.config();
-
-interface MyContext {
-  user: any;
-  token: string;
-}
-
+import { UserResolver } from '@/api/graphql/resolvers/user.resolver';
+// import { createLeakyBucketMiddleware } from '@/application/shared/middlewares/leackyBucket.middleware';
+import { connectMongo } from '@/infrastructure/database/mongo/client.mongoose.config';
+import { queues } from '@/infrastructure/queue/queue.config';
+import '@/infrastructure/queue/workers/user.worker';
+import cors from '@koa/cors';
 interface AuthenticatedUser {
   id: string;
   email: string;
   roles: string[];
 }
 
+interface MyContext {
+  user?: AuthenticatedUser;
+  token?: string;
+}
+
 async function bootstrap() {
+  await connectMongo();
+
   const app = new Koa();
   const router = new Router();
-  const port: number = 3000;
+  const port: number = parseInt(process.env.PORT || '3000', 10);
   const graphqlPath: string = '/graphql';
 
   const schema = await buildSchema({
     resolvers: [UserResolver],
-    validate: process.env.NODE_ENV === 'prod',
+    validate: process.env.NODE_ENV === 'production',
   });
 
   const apolloServer = new ApolloServer<MyContext>({ schema });
   await apolloServer.start();
-  app.use(createLeakyBucketMiddleware());
-  app.use(authMiddleware);
+
+  app.use(cors());
+  app.use(bodyParser());
+  // app.use(createLeakyBucketMiddleware());
+
   app.use(
     koaMiddleware(apolloServer, {
       context: async ({ ctx }): Promise<MyContext> => {
         const token = ctx.request.headers.authorization || '';
         const user = ctx.state.user as AuthenticatedUser | undefined;
-        return { user: user, token };
+        return { user, token };
       },
     })
   );
@@ -50,9 +56,13 @@ async function bootstrap() {
   router.get('/health', (ctx: Koa.Context) => {
     ctx.status = 200;
     ctx.body = {
-      health: 'ok',
+      health: 'Online and Routing xD',
       timestamp: new Date().toISOString(),
-      server: 'Koa + Apollo GraphQL'
+      server: 'Koa + Apollo GraphQL',
+      queues: Object.keys(queues).map(queue => ({
+        name: queue,
+        status: 'active'
+      }))
     };
   });
 
@@ -60,10 +70,10 @@ async function bootstrap() {
   app.use(router.allowedMethods());
 
   app.listen(port, () => {
-    console.log(`Koa ready on http://localhost:${port}`);
+    console.log(`Server running on http://localhost:${port}`);
     console.log(`GraphQL on http://localhost:${port}${graphqlPath}`);
-    console.log(`Health check on http://localhost:${port}/health`);
+    console.log(`Health check on http://localhost:${port}/healthcheck`);
   });
 }
 
-bootstrap();
+bootstrap().catch(console.error);

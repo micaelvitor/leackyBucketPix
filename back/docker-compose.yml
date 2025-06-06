@@ -12,7 +12,6 @@ services:
       interval: 5s
       timeout: 30s
       start_period: 0s
-      start_interval: 1s
       retries: 30
     volumes:
       - "mongo1_data:/data/db"
@@ -49,14 +48,34 @@ services:
         condition: service_healthy
 
   redis:
-    container_name: redis
+    container_name: redispix
     image: redis:7.0
+    command: redis-server --requirepass "ULTRASECURITY"
     ports:
       - 6379:6379
     networks:
       - mongodb-network
     volumes:
       - "redis_data:/data"
+
+  app:
+    container_name: pixLeakyBucket
+    build: .
+    ports:
+      - 3000:3000
+    networks:
+      - mongodb-network
+    env_file:
+      - .env
+    depends_on:
+      mongo1:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./:/app
+      - pnpm_store:/root/.pnpm-store
+      - /app/node_modules
 
 volumes:
   mongo1_data:
@@ -66,6 +85,7 @@ volumes:
   mongo2_config:
   mongo3_config:
   redis_data:
+  pnpm_store:
 
 networks:
   mongodb-network:
