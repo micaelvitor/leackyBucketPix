@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { UserService } from './user.service';
+import { userRepository } from '@/core/repositories/user.repository';
 
 export interface AuthPayload {
   userId: string;
@@ -12,7 +13,7 @@ export class AuthService {
 
   constructor() {
     this.jwtSecret = process.env.JWT_SECRET || '';
-    this.userService = new UserService();
+    this.userService = new UserService(userRepository);
   }
 
   async login(email: string, password: string): Promise<string> {

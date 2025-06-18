@@ -4,4 +4,4 @@ import { ObjectType, Field } from 'type-graphql';
 export class Token {
   @Field()
   accessToken!: string;
-} 
+}

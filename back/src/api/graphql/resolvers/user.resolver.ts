@@ -6,6 +6,7 @@ import { LoginInput } from '../inputs/login.input';
 import { RegisterInput } from '../inputs/register.input';
 import { Token } from '../types/token.type';
 import { AuthPayload } from '@/core/services/auth.service';
+import { userRepository } from '@/core/repositories/user.repository';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -13,7 +14,7 @@ export class UserResolver {
   private authService: AuthService;
 
   constructor() {
-    this.userService = new UserService();
+    this.userService = new UserService(userRepository); 
     this.authService = new AuthService();
   }
 
@@ -25,7 +26,7 @@ export class UserResolver {
 
   @Mutation(() => User)
   async register(@Arg("data") data: RegisterInput): Promise<User> {
-    return this.userService.createUser(data.name, data.email, data.password);
+    return this.userService.createUser(data.email, data.name, data.password);
   }
 
   @Query(() => User, { nullable: true })

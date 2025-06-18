@@ -1,31 +1,24 @@
 import { MiddlewareFn } from 'type-graphql';
-import { Context } from '../graphql/types/context';
 import jwt from 'jsonwebtoken';
-import { UserService } from '../services/user.service';
+import { MyContext } from '@/api/types/context.type';
 
-export const authMiddleware: MiddlewareFn<Context> = async ({ context }, next) => {
-  const authHeader = context.req.headers.authorization;
-  if (!authHeader) {
-    throw new Error('Not authenticated');
-  }
+export const authMiddleware: MiddlewareFn<MyContext> = async ({ context }, next) => {
+  const authHeader = context.token;
+  if (!authHeader) throw new Error('Not authenticated');
 
   const token = authHeader.split(' ')[1];
-  if (!token) {
-    throw new Error('Not authenticated');
-  }
+  if (!token) throw new Error('Not authenticated');
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret') as { id: string };
-    const userService = new UserService();
-    const user = await userService.getUserById(decoded.id);
 
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const userDocument = await context.services.userService.getUserById(decoded.id);
+    if (!userDocument) throw new Error('User not found');
 
-    context.user = user;
+    context.user = userDocument;
     return next();
   } catch (error) {
+    console.error('Auth Middleware error:', error);
     throw new Error('Not authenticated');
   }
-}; 
+};

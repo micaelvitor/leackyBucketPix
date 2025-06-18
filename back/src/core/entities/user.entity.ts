@@ -5,7 +5,12 @@ import { Entity } from './entity';
 import { PixKey } from './pixKey.entity';
 
 @ObjectType()
+@ObjectType()
 export class User extends Entity {
+  @Field(() => ID)
+  @prop({ required: true, unique: true })
+  id!: string;
+
   @Field()
   @prop({ required: true })
   name!: string;
@@ -26,6 +31,12 @@ export class User extends Entity {
     super(data.id);
     Object.assign(this, data);
   }
+
+  static fromDocument(doc: UserDocument): User {
+    const { id, name, email, password, pixKeys } = doc;
+    return new User({ id, name, email, password, pixKeys });
+  }
 }
+
 
 export type UserDocument = User & Document;
