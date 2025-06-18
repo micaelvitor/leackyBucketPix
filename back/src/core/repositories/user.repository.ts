@@ -8,7 +8,6 @@ export const userRepository = {
     return UserModel.findOne({ id });
   },
   async findByEmail(email: string) {
-    console.log(await UserModel.findOne({ email }));
     return await UserModel.findOne({ email });
   },
   async findAll() {
