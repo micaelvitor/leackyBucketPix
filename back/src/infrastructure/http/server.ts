@@ -29,8 +29,6 @@ async function bootstrap() {
     validate: process.env.NODE_ENV === 'production',
   });
 
-  const userService = new UserService(userRepository);
-
   const apolloServer = new ApolloServer<MyContext>({ schema });
   await apolloServer.start();
 
@@ -44,10 +42,7 @@ async function bootstrap() {
 
       return {
         user,
-        token,
-        services: {
-          userService,
-        },
+        token
       };
     },
   }));

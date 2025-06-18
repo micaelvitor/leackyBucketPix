@@ -5,8 +5,10 @@ import { AuthService } from '@/core/services/auth.service';
 import { LoginInput } from '../inputs/login.input';
 import { RegisterInput } from '../inputs/register.input';
 import { Token } from '../types/token.type';
-import { AuthPayload } from '@/core/services/auth.service';
+import { AuthPayloadI } from '@/core/services/types/auth.type';
 import { userRepository } from '@/core/repositories/user.repository';
+import { UseMiddleware } from 'type-graphql';
+import { authMiddleware } from '@/core/middlewares/auth.middleware';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -14,8 +16,8 @@ export class UserResolver {
   private authService: AuthService;
 
   constructor() {
-    this.userService = new UserService(userRepository); 
-    this.authService = new AuthService();
+    this.userService = new UserService(userRepository);
+    this.authService = new AuthService(userRepository);
   }
 
   @Mutation(() => Token)
@@ -26,17 +28,13 @@ export class UserResolver {
 
   @Mutation(() => User)
   async register(@Arg("data") data: RegisterInput): Promise<User> {
-    return this.userService.createUser(data.email, data.name, data.password);
+    return this.userService.createUser(data.name, data.email, data.password);
   }
 
   @Query(() => User, { nullable: true })
-  async me(@Ctx() ctx: { user?: AuthPayload }): Promise<User | null> {
+  @UseMiddleware(authMiddleware)
+  async me(@Ctx() ctx: { user?: AuthPayloadI }): Promise<User | null> {
     if (!ctx.user?.userId) return null;
     return this.userService.getUserById(ctx.user.userId);
-  }
-
-  @Query(() => [User])
-  async users(): Promise<User[]> {
-    return this.userService.getAllUsers();
   }
 }

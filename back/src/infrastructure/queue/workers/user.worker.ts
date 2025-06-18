@@ -16,6 +16,7 @@ createWorker(QUEUE_NAMES.USER_CREATED, async (job: Job<User>) => {
   }
 });
 
+
 createWorker(QUEUE_NAMES.USER_UPDATED, async (job: Job<User>) => {
   console.log('Processing user update:', job.data);
   

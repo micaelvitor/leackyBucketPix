@@ -1,23 +1,20 @@
 import jwt from 'jsonwebtoken';
 import { UserService } from './user.service';
 import { userRepository } from '@/core/repositories/user.repository';
-
-export interface AuthPayload {
-  userId: string;
-  email: string;
-}
+import { AuthPayloadI } from './types/auth.type';
 
 export class AuthService {
   private readonly jwtSecret: string;
   private readonly userService: UserService;
-
-  constructor() {
+  constructor(
+    private readonly repository: any
+  ) {
     this.jwtSecret = process.env.JWT_SECRET || '';
     this.userService = new UserService(userRepository);
   }
 
   async login(email: string, password: string): Promise<string> {
-    const user = await this.userService.getUserByEmail(email);
+    const user = await this.repository.findByEmail(email);
     if (!user) {
       throw new Error('User not found');
     }
@@ -33,18 +30,18 @@ export class AuthService {
     });
   }
 
-  generateToken(payload: AuthPayload): string {
+  generateToken(payload: AuthPayloadI): string {
     return jwt.sign(payload, this.jwtSecret, {
       expiresIn: '1h'
     });
   }
 
-  verifyToken(token: string): AuthPayload | null {
+  verifyToken(token: string): AuthPayloadI | null {
     try {
-      return jwt.verify(token, this.jwtSecret) as AuthPayload;
+      return jwt.verify(token, this.jwtSecret) as AuthPayloadI;
     } catch (error) {
       console.error('Error verifying token:', error);
       return null;
     }
   }
-} 
+}

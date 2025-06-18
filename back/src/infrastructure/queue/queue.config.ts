@@ -9,6 +9,7 @@ export const QUEUE_NAMES = {
   USER_DELETED: 'user.deleted',
   PIX_KEY_CREATED: 'pixKey.created',
   PIX_KEY_DELETED: 'pixKey.deleted',
+  USER_RESOLVE: 'user:resolve',
 } as const;
 
 export const createQueue = (name: string) => {
